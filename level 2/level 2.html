@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>level 2</title>
+</head>
+
+<!-- 为了展示数据，依据level1推荐歌单改写部分开始 -->
+<script src="../level 1/template.js" type="text/javascript"></script>
+<script id='result' type="text/html">
+    {{each arr as value i}}
+    <div class="sbox">
+        <img src={{value.url}}>
+        <div class="words">{{value.words}}</div>
+    </div>
+    {{/each}}
+</script>
+<!-- 为了展示数据，依据level1推荐歌单改写部分结束 -->
+
+<script type="text/javascript">
+    function Ajax({
+        type,
+        url,
+        params,
+        async = 'true',
+        dataType,
+        success,
+        error
+    }) {
+        let xhr = new XMLHttpRequest();
+        if (type == 'get' || type == 'GET') { //get
+            if (params && params != "") {
+                url += '?' + params;
+            }
+            xhr.open(type, url, async);
+            xhr.send(null);
+        } else if (type == 'post' || type == 'POST') { //post
+            xhr.open(type, url, async);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send(params);
+        }
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4) {
+                if (xhr.status >= 200 && xhr.status < 300 || xhr.status == 304) {
+                    let result = null;
+                    if (dataType == 'json') {
+                        result = JSON.parse(xhr.responseText)
+                        success(result);
+
+                        // 为了展示数据，依据level1推荐歌单改写部分开始
+                        let data = [];
+                        let temp = {};
+                        let res = result;
+                        for (let i = 0; i < res.result.length; i++) {
+                            let picture = {
+                                url: res.result[i].picUrl + '?param=220y220',
+                                words: res.result[i].name
+                            }
+                            data.push(picture);
+                        }
+                        temp.arr = data;
+                        console.log(temp);
+                        let html = template('result', temp);
+                        document.querySelector("#container").innerHTML = html;
+                        //为了展示数据，依据level1推荐歌单改写部分结束
+
+                    } else if (dataType == 'XML') {
+                        result = xhr.responseXML;
+                        success(result);
+                    } else {
+                        result = xhr.responseText;
+                        success(result);
+                    }
+
+                }
+            }
+            if (error) {
+                xhr.onerror = (data) => {
+                    error(data);
+                }
+            }
+        }
+
+    }
+
+
+
+    let data = { //依靠对象传参，没需要考虑参数的要求
+        type: 'get',
+        url: 'http://musicapi.leanapp.cn/personalized',
+        params: 'limit=30', //如果有多个参数，记得用&连接
+        async: true,
+        dataType: 'json',
+        success: function(data) {
+            console.log(data);
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    }
+
+    window.onload = () => {
+        // Ajax('get', 'http://musicapi.leanapp.cn/personalized', 'limit=30', true, 'json', function success(data) {
+        //     console.log(data);
+        // }, function error(data) {
+        //     console.log(data);
+        // });  //直接传参，要考虑参数顺序。注意若采用这种方法，定义函数时，参数不要加大括号
+        Ajax(data);
+    }
+</script>
+<link rel="stylesheet" href="../level 1/level 1.css">
+
+<body>
+    <div id="container">
+
+    </div>
+</body>
+
+</html>

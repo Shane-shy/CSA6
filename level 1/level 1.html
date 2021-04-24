@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>level 1 推荐歌单</title>
+    <script src="./template.js" type="text/javascript"></script>
+    <script id='result' type="text/html">
+        {{each arr as value i}}
+        <div class="sbox">
+            <img src={{value.url}}>
+            <div class="words">{{value.words}}</div>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/javascript">
+        window.onload = () => {
+            let xhr = new XMLHttpRequest();
+            let limit = '30';
+            xhr.open('GET', 'http://musicapi.leanapp.cn/personalized?limit=' + limit, true);
+            xhr.send(null);
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState == 4) {
+                    if (xhr.status >= 200 && xhr.status < 300 || xhr.status == 304) {
+                        let res = xhr.responseText;
+                        res = JSON.parse(res);
+                        console.log(res);
+                        let data = [];
+                        let temp = {};
+                        for (let i = 0; i < res.result.length; i++) {
+                            let picture = {
+                                url: res.result[i].picUrl + '?param=220y220',
+                                words: res.result[i].name
+                            }
+                            data.push(picture);
+                        }
+                        temp.arr = data;
+                        console.log(temp);
+                        let html = template('result', temp);
+                        document.querySelector("#container").innerHTML = html;
+                        // console.log(html);
+
+                    }
+                }
+
+            }
+
+        }
+    </script>
+    <link rel="stylesheet" href="level 1.css">
+</head>
+
+<body>
+    <div id="container">
+
+    </div>
+</body>
+
+</html>
